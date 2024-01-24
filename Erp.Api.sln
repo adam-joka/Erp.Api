@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Erp.Api", "src\Erp.Api\Erp.Api.csproj", "{1EFDB51B-1C5F-47ED-B443-39D3C46881F6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Erp.Trucks", "Erp.Trucks\Erp.Trucks.csproj", "{353842AB-7350-45EC-8E00-4B94F4116D44}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{1EFDB51B-1C5F-47ED-B443-39D3C46881F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1EFDB51B-1C5F-47ED-B443-39D3C46881F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1EFDB51B-1C5F-47ED-B443-39D3C46881F6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{353842AB-7350-45EC-8E00-4B94F4116D44}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{353842AB-7350-45EC-8E00-4B94F4116D44}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{353842AB-7350-45EC-8E00-4B94F4116D44}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{353842AB-7350-45EC-8E00-4B94F4116D44}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
