@@ -1,0 +1,8 @@
+**/obj
+**/bin
+**/.vs/
+*.vspx
+*.psess
+*.suo
+**/.idea/
+*.sln.DotSettings.user
