@@ -7,7 +7,7 @@ public class TruckStatusState
 {
     enum Trigger { PutOutOfService, Load, PutToJob, GoToJob, Return }
 
-    private TruckStatus _status = TruckStatus.OutOfService;
+    private TruckStatus _status;
     private readonly StateMachine<TruckStatus, Trigger> _machine;
 
     public TruckStatusState(TruckStatus status)
@@ -33,17 +33,20 @@ public class TruckStatusState
         _machine.Configure(TruckStatus.AtJob)
             .Permit(Trigger.PutOutOfService, TruckStatus.OutOfService)
             .Permit(Trigger.Return, TruckStatus.Returning);
-
+        
+        _machine.Configure(TruckStatus.Returning)
+            .Permit(Trigger.PutOutOfService, TruckStatus.OutOfService)
+            .Permit(Trigger.Load, TruckStatus.Loading);
     }
 
-    public Task PutOutOfService() => _machine.FireAsync(Trigger.PutOutOfService);
-    public Task Load() => _machine.FireAsync(Trigger.Load);
+    public void PutOutOfService() => _machine.Fire(Trigger.PutOutOfService);
+    public void StartLoading() => _machine.Fire(Trigger.Load);
     
-    public Task PutToJob() => _machine.FireAsync(Trigger.PutToJob);
+    public void PutToJob() => _machine.Fire(Trigger.PutToJob);
     
-    public Task GoToJob() => _machine.FireAsync(Trigger.GoToJob);
+    public void GoToJob() => _machine.Fire(Trigger.GoToJob);
     
-    public Task Return() => _machine.FireAsync(Trigger.Return);
+    public void Return() => _machine.Fire(Trigger.Return);
     
     public TruckStatus Status => _status;
 }

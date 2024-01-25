@@ -1,7 +1,9 @@
 ﻿using Erp.Trucks.DataAccess;
 using Erp.Trucks.DataTransfer;
 using Erp.Trucks.Entities;
+using Erp.Trucks.Enums;
 using Erp.Trucks.Exceptions;
+using Erp.Trucks.StatusLogic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -28,21 +30,16 @@ public class TruckService
 
     public async Task<TruckDto> GetTruckAsync(Guid uuid)
     {
-        TruckDto? truck = await _dbContext.Trucks.Select(t => new TruckDto
-        {
-            Uuid = t.Uuid,
-            Name = t.Name,
-            Code = t.Code,
-            Description = t.Description,
-            Status = t.Status
-        }).FirstOrDefaultAsync(t => t.Uuid == uuid);
-        
-        if (truck == null)
-        {
-            throw new TruckWithGivenUuidNotFoundException(uuid);
-        }
+        Truck truckEntity = await TryGetTruckEntityAsync(uuid);
 
-        return truck;
+        return new TruckDto
+        {
+            Uuid = truckEntity.Uuid,
+            Name = truckEntity.Name,
+            Code = truckEntity.Code,
+            Description = truckEntity.Description,
+            Status = truckEntity.Status
+        };
     }
 
     public async Task<Guid> AddTruckAsync(TruckDto truck)
@@ -59,7 +56,7 @@ public class TruckService
             Name = truck.Name,
             Code = truck.Code,
             Description = truck.Description,
-            Status = truck.Status,
+            Status = TruckStatus.OutOfService
         };
 
         await _dbContext.Trucks.AddAsync(truckEntity);
@@ -74,20 +71,113 @@ public class TruckService
     {
         await using IDbContextTransaction transaction = await _dbContext.Database.BeginTransactionAsync();
         
-        Truck? truckEntity = await _dbContext.Trucks.FirstOrDefaultAsync(t => t.Uuid == truck.Uuid);
-        if (truckEntity == null)
-        {
-            throw new TruckWithGivenUuidNotFoundException(truck.Uuid);
-        }
+        Truck truckEntity = await TryGetTruckEntityAsync(truck.Uuid);
 
         truckEntity.Name = truck.Name;
         truckEntity.Code = truck.Code;
         truckEntity.Description = truck.Description;
-        truckEntity.Status = truck.Status;
 
         await _dbContext.SaveChangesAsync();
         await transaction.CommitAsync();
 
         return truck.Uuid;
+    }
+
+    public async Task DeleteTruckAsync(Guid uuid)
+    {
+        Truck truckEntity = await TryGetTruckEntityAsync(uuid);
+        
+        _dbContext.Trucks.Remove(truckEntity);
+        
+        await _dbContext.SaveChangesAsync();
+    }
+    
+    public async Task PutOutOfServiceAsync (Guid uuid)
+    {
+        Truck truckEntity = await TryGetTruckEntityAsync(uuid);
+        
+        var truckStatusState = new TruckStatusState(truckEntity.Status);
+
+        GuardAgainstInvalidState(() => truckStatusState.PutOutOfService(), TruckStatus.OutOfService);
+      
+        truckEntity.Status = truckStatusState.Status;
+        
+        await _dbContext.SaveChangesAsync();
+    }
+    
+    public async Task StartLoadingAsync(Guid uuid)
+    {
+        Truck truckEntity = await TryGetTruckEntityAsync(uuid);
+        
+        var truckStatusState = new TruckStatusState(truckEntity.Status);
+
+        GuardAgainstInvalidState(() => truckStatusState.StartLoading(), TruckStatus.Loading);
+
+        truckEntity.Status = truckStatusState.Status;
+        
+        await _dbContext.SaveChangesAsync();
+    }
+    
+    public async Task PutToJobAsync(Guid uuid)
+    {
+        Truck truckEntity = await TryGetTruckEntityAsync(uuid);
+        
+        var truckStatusState = new TruckStatusState(truckEntity.Status);
+
+        GuardAgainstInvalidState(() => truckStatusState.PutToJob(), TruckStatus.ToJob);
+
+        truckEntity.Status = truckStatusState.Status;
+        
+        await _dbContext.SaveChangesAsync();
+    }
+    
+    public async Task GoToJobAsync(Guid uuid)
+    {
+        Truck truckEntity = await TryGetTruckEntityAsync(uuid);
+        
+        var truckStatusState = new TruckStatusState(truckEntity.Status);
+
+        GuardAgainstInvalidState(() => truckStatusState.GoToJob(), TruckStatus.AtJob);
+
+        truckEntity.Status = truckStatusState.Status;
+        
+        await _dbContext.SaveChangesAsync();
+    }
+    
+    public async Task Return(Guid uuid)
+    {
+        Truck truckEntity = await TryGetTruckEntityAsync(uuid);
+        
+        var truckStatusState = new TruckStatusState(truckEntity.Status);
+
+        GuardAgainstInvalidState(() => truckStatusState.Return(), TruckStatus.Returning);
+
+        truckEntity.Status = truckStatusState.Status;
+        
+        await _dbContext.SaveChangesAsync();
+    }
+    
+    private void GuardAgainstInvalidState(Action action, TruckStatus status)
+    {
+        try
+        {
+            action();
+        }
+        catch (InvalidOperationException)
+        {
+            throw new TruckStatusIsNotAllowedException(Guid.Empty, status);
+        }
+    }
+    
+    
+    private async Task<Truck> TryGetTruckEntityAsync(Guid uuid)
+    {
+        Truck? truckEntity = await _dbContext.Trucks.FirstOrDefaultAsync(t => t.Uuid == uuid);
+        if (truckEntity == null)
+        {
+            throw new TruckWithGivenUuidNotFoundException(uuid);
+        }
+
+        return truckEntity;
     }
 }

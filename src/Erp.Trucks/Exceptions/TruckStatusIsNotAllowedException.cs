@@ -1,8 +1,10 @@
+using Erp.Trucks.Enums;
+
 namespace Erp.Trucks.Exceptions;
 
 public class TruckStatusIsNotAllowedException : Exception
 {
-    public TruckStatusIsNotAllowedException() : base($"Truck status is not allowed")
+    public TruckStatusIsNotAllowedException(Guid uuid, TruckStatus status) : base($"Truck {uuid} status {status} is not allowed")
     {
         
     }
