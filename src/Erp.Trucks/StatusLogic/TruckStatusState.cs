@@ -10,8 +10,10 @@ public class TruckStatusState
     private TruckStatus _status = TruckStatus.OutOfService;
     private readonly StateMachine<TruckStatus, Trigger> _machine;
 
-    public TruckStatusState()
+    public TruckStatusState(TruckStatus status)
     {
+        _status = status;
+        
         _machine = new StateMachine<TruckStatus, Trigger>(() => _status, s => _status = s);
 
         _machine.Configure(TruckStatus.OutOfService)
