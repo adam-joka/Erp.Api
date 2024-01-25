@@ -7,13 +7,15 @@ namespace Erp.Trucks;
 
 public static class Extensions
 {
-    public static void AddTrucks(this IServiceCollection services)
+    public static void AddTrucksModule(this IServiceCollection services)
     {
         services.AddDbContext<TrucksDbContext>(options =>
         {
             options.UseSqlServer("Server=.;Database=Erp.Trucks;Trusted_Connection=True;");
         });
 
-        services.AddScoped<ITruckService, TruckService>();
+        services.AddScoped<TruckService>();
+        services.AddScoped<TruckStatusService>();
+        services.AddScoped<TruckStatusHistoryService>();
     }
 }
