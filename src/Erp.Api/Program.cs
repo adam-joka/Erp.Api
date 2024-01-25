@@ -1,6 +1,11 @@
+using Erp.Trucks;
+
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddTrucksModule();
+
 var app = builder.Build();
 
-app.MapGet("/", () => "Hello World!");
+app.UseTrucksModuleEndpoints();
 
 app.Run();

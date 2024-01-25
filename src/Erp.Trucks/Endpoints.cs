@@ -8,7 +8,7 @@ namespace Erp.Trucks;
 
 public static class Endpoints
 {
-    public static void MapEndpoints(this WebApplication app)
+    public static void MapTrucksEndpoints(this WebApplication app)
     {
         app.MapGet("/trucks", async ([FromServices] TruckService truckService) =>
         {

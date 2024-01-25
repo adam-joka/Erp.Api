@@ -6,4 +6,8 @@
         <ImplicitUsings>enable</ImplicitUsings>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\Erp.Trucks\Erp.Trucks.csproj" />
+    </ItemGroup>
+
 </Project>

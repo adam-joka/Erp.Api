@@ -1,5 +1,6 @@
 ﻿using Erp.Trucks.DataAccess;
 using Erp.Trucks.Services;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -15,7 +16,10 @@ public static class Extensions
         });
 
         services.AddScoped<TruckService>();
-        services.AddScoped<TruckStatusService>();
-        services.AddScoped<TruckStatusHistoryService>();
+    }
+    
+    public static void UseTrucksModuleEndpoints(this WebApplication app)
+    {
+        app.MapTrucksEndpoints();
     }
 }

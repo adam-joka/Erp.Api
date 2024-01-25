@@ -42,4 +42,6 @@ public class TruckStatusState
     public Task GoToJob() => _machine.FireAsync(Trigger.GoToJob);
     
     public Task Return() => _machine.FireAsync(Trigger.Return);
+    
+    public TruckStatus Status => _status;
 }
