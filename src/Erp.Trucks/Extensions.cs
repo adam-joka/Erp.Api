@@ -10,10 +10,7 @@ public static class Extensions
 {
     public static void AddTrucksModule(this IServiceCollection services)
     {
-        services.AddDbContext<TrucksDbContext>(options =>
-        {
-            options.UseSqlServer("Server=.;Database=Erp.Trucks;Trusted_Connection=True;");
-        });
+        services.AddDbContext<TrucksDbContext>(options => options.UseInMemoryDatabase("Trucks"));
 
         services.AddScoped<TruckService>();
     }
