@@ -5,7 +5,7 @@ namespace Erp.Trucks.StatusLogic;
 
 public class TruckStatusState
 {
-    enum Trigger { PutOutOfService, StartLoading, PutToJob, GoToJob, Return }
+    enum Trigger { PutOutOfService, Load, PutToJob, GoToJob, Return }
 
     private TruckStatus _status = TruckStatus.OutOfService;
     private readonly StateMachine<TruckStatus, Trigger> _machine;
@@ -15,7 +15,7 @@ public class TruckStatusState
         _machine = new StateMachine<TruckStatus, Trigger>(() => _status, s => _status = s);
 
         _machine.Configure(TruckStatus.OutOfService)
-            .Permit(Trigger.StartLoading, TruckStatus.Loading)
+            .Permit(Trigger.Load, TruckStatus.Loading)
             .Permit(Trigger.PutToJob, TruckStatus.ToJob)
             .Permit(Trigger.GoToJob, TruckStatus.AtJob)
             .Permit(Trigger.Return, TruckStatus.Returning);
@@ -35,5 +35,11 @@ public class TruckStatusState
     }
 
     public Task PutOutOfService() => _machine.FireAsync(Trigger.PutOutOfService);
-    public Task PutOutOfService() => _machine.FireAsync(Trigger.PutOutOfService);
+    public Task Load() => _machine.FireAsync(Trigger.Load);
+    
+    public Task PutToJob() => _machine.FireAsync(Trigger.PutToJob);
+    
+    public Task GoToJob() => _machine.FireAsync(Trigger.GoToJob);
+    
+    public Task Return() => _machine.FireAsync(Trigger.Return);
 }
