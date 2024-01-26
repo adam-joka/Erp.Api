@@ -44,7 +44,9 @@ public class TruckService
 
     public async Task<Guid> AddTruckAsync(CreateTruckDto truck)
     {
-        await using IDbContextTransaction transaction = await _dbContext.Database.BeginTransactionAsync();
+        // uncomment this when real db is used
+        // await using IDbContextTransaction transaction = await _dbContext.Database.BeginTransactionAsync();
+        
         if(await _dbContext.Trucks.AnyAsync(t => t.Uuid == truck.Uuid))
         {
             throw new TruckWithGivenUuidAlreadyExistsException(truck.Uuid);
@@ -62,14 +64,17 @@ public class TruckService
         await _dbContext.Trucks.AddAsync(truckEntity);
         
         await _dbContext.SaveChangesAsync();
-        await transaction.CommitAsync();
+        
+        // uncomment this when real db is used
+        //await transaction.CommitAsync();
 
         return truck.Uuid;
     }
 
     public async Task<Guid> UpdateTruckAsync(UpdateTruckDto truck)
     {
-        await using IDbContextTransaction transaction = await _dbContext.Database.BeginTransactionAsync();
+        // uncomment this when real db is used
+        // await using IDbContextTransaction transaction = await _dbContext.Database.BeginTransactionAsync();
         
         Truck truckEntity = await TryGetTruckEntityAsync(truck.Uuid);
 
@@ -78,7 +83,9 @@ public class TruckService
         truckEntity.Description = truck.Description;
 
         await _dbContext.SaveChangesAsync();
-        await transaction.CommitAsync();
+        
+        // uncomment this when real db is used
+        // await transaction.CommitAsync();
 
         return truck.Uuid;
     }
