@@ -39,14 +39,46 @@ public class TruckStatusState
             .Permit(Trigger.Load, TruckStatus.Loading);
     }
 
-    public void PutOutOfService() => _machine.Fire(Trigger.PutOutOfService);
-    public void StartLoading() => _machine.Fire(Trigger.Load);
+    public void PutOutOfService()
+    {
+        if (_status != TruckStatus.OutOfService)
+        {
+            _machine.Fire(Trigger.PutOutOfService);
+        }
+    }
+
     
-    public void PutToJob() => _machine.Fire(Trigger.PutToJob);
-    
-    public void GoToJob() => _machine.Fire(Trigger.GoToJob);
-    
-    public void Return() => _machine.Fire(Trigger.Return);
-    
+    public void StartLoading()
+    {
+        if (_status != TruckStatus.Loading)
+        {
+            _machine.Fire(Trigger.Load);
+        }
+    }
+
+    public void PutToJob()
+    {
+        if (_status != TruckStatus.ToJob)
+        {
+            _machine.Fire(Trigger.PutToJob);
+        }
+    }
+
+    public void GoToJob()
+    {
+        if (_status != TruckStatus.AtJob)
+        {
+            _machine.Fire(Trigger.GoToJob);
+        }
+    }
+
+    public void Return()
+    {
+        if (_status != TruckStatus.Returning)
+        {
+            _machine.Fire(Trigger.Return);
+        }
+    }
+
     public TruckStatus Status => _status;
 }

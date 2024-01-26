@@ -105,7 +105,7 @@ public class TruckService
         
         var truckStatusState = new TruckStatusState(truckEntity.Status);
 
-        GuardAgainstInvalidState(() => truckStatusState.PutOutOfService(), TruckStatus.OutOfService);
+        GuardAgainstInvalidState(() => truckStatusState.PutOutOfService(), uuid, TruckStatus.OutOfService);
       
         truckEntity.Status = truckStatusState.Status;
         
@@ -118,7 +118,7 @@ public class TruckService
         
         var truckStatusState = new TruckStatusState(truckEntity.Status);
 
-        GuardAgainstInvalidState(() => truckStatusState.StartLoading(), TruckStatus.Loading);
+        GuardAgainstInvalidState(() => truckStatusState.StartLoading(), uuid, TruckStatus.Loading);
 
         truckEntity.Status = truckStatusState.Status;
         
@@ -131,7 +131,7 @@ public class TruckService
         
         var truckStatusState = new TruckStatusState(truckEntity.Status);
 
-        GuardAgainstInvalidState(() => truckStatusState.PutToJob(), TruckStatus.ToJob);
+        GuardAgainstInvalidState(() => truckStatusState.PutToJob(), uuid, TruckStatus.ToJob);
 
         truckEntity.Status = truckStatusState.Status;
         
@@ -144,7 +144,7 @@ public class TruckService
         
         var truckStatusState = new TruckStatusState(truckEntity.Status);
 
-        GuardAgainstInvalidState(() => truckStatusState.GoToJob(), TruckStatus.AtJob);
+        GuardAgainstInvalidState(() => truckStatusState.GoToJob(), uuid, TruckStatus.AtJob);
 
         truckEntity.Status = truckStatusState.Status;
         
@@ -157,14 +157,14 @@ public class TruckService
         
         var truckStatusState = new TruckStatusState(truckEntity.Status);
 
-        GuardAgainstInvalidState(() => truckStatusState.Return(), TruckStatus.Returning);
+        GuardAgainstInvalidState(() => truckStatusState.Return(), uuid, TruckStatus.Returning);
 
         truckEntity.Status = truckStatusState.Status;
         
         await _dbContext.SaveChangesAsync();
     }
     
-    private void GuardAgainstInvalidState(Action action, TruckStatus status)
+    private void GuardAgainstInvalidState(Action action, Guid uuid, TruckStatus status)
     {
         try
         {
@@ -172,7 +172,7 @@ public class TruckService
         }
         catch (InvalidOperationException)
         {
-            throw new TruckStatusIsNotAllowedException(Guid.Empty, status);
+            throw new TruckStatusIsNotAllowedException(uuid, status);
         }
     }
     
