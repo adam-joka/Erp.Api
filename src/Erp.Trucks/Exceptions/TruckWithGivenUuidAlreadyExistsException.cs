@@ -1,10 +1,4 @@
 namespace Erp.Trucks.Exceptions;
 
-public class TruckWithGivenUuidAlreadyExistsException : Exception
-{
-    public TruckWithGivenUuidAlreadyExistsException(Guid uuid) : base(
-        $"Truck with provided uuid {uuid} already exists")
-    {
-
-    }
-}
+public class TruckWithGivenUuidAlreadyExistsException(Guid uuid)
+    : TruckValidationException($"Truck with provided uuid {uuid} already exists");

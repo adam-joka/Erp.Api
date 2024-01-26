@@ -1,4 +1,5 @@
 ﻿using Erp.Trucks.DataAccess;
+using Erp.Trucks.Infrastructure.Middleware;
 using Erp.Trucks.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
@@ -17,6 +18,7 @@ public static class Extensions
     
     public static void UseTrucksModuleEndpoints(this WebApplication app)
     {
+        app.UseMiddleware<GlobalExceptionMiddleware>();
         app.MapTrucksEndpoints();
     }
 }

@@ -1,5 +1,6 @@
 using Erp.Trucks.DataTransfer;
 using Erp.Trucks.Services;
+using FluentValidation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -25,16 +26,32 @@ public static class Endpoints
         .Produces<TruckDto>()
         .Produces(StatusCodes.Status404NotFound);
         
-        app.MapPost("/trucks", async ([FromBody] CreateTruckDto truck, [FromServices] TruckService truckService) =>
+        app.MapPost("/trucks", async (
+                [FromBody] CreateTruckDto truck, 
+                [FromServices] TruckService truckService,
+                [FromServices] IValidator<CreateTruckDto> createTruckValidator) =>
         {
+            var validationResult = await createTruckValidator.ValidateAsync(truck);
+            if (!validationResult.IsValid) {
+                return Results.ValidationProblem(validationResult.ToDictionary());
+            }
+            
             Guid uuid = await truckService.AddTruckAsync(truck);
             return Results.Ok(uuid);
         }).WithName("AddTruck")
         .Produces<Guid>()
         .Produces(StatusCodes.Status404NotFound);
         
-        app.MapPut("/trucks", async ([FromBody] UpdateTruckDto truck, [FromServices] TruckService truckService) =>
+        app.MapPut("/trucks", async (
+                [FromBody] UpdateTruckDto truck, 
+                [FromServices] TruckService truckService,
+                [FromServices] IValidator<UpdateTruckDto> updateTruckValidator) =>
         {
+            var validationResult = await updateTruckValidator.ValidateAsync(truck);
+            if (!validationResult.IsValid) {
+                return Results.ValidationProblem(validationResult.ToDictionary());
+            }
+            
             Guid uuid = await truckService.UpdateTruckAsync(truck);
             return Results.Ok(uuid);
         })
