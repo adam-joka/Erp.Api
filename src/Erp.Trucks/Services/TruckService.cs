@@ -42,7 +42,7 @@ public class TruckService
         };
     }
 
-    public async Task<Guid> AddTruckAsync(TruckDto truck)
+    public async Task<Guid> AddTruckAsync(CreateTruckDto truck)
     {
         await using IDbContextTransaction transaction = await _dbContext.Database.BeginTransactionAsync();
         if(await _dbContext.Trucks.AnyAsync(t => t.Uuid == truck.Uuid))
@@ -67,7 +67,7 @@ public class TruckService
         return truck.Uuid;
     }
 
-    public async Task<Guid> UpdateTruckAsync(TruckDto truck)
+    public async Task<Guid> UpdateTruckAsync(UpdateTruckDto truck)
     {
         await using IDbContextTransaction transaction = await _dbContext.Database.BeginTransactionAsync();
         

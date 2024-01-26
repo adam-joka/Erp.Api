@@ -25,24 +25,22 @@ public static class Endpoints
         .Produces<TruckDto>()
         .Produces(StatusCodes.Status404NotFound);
         
-        
-        app.MapPost("/trucks", async ([FromBody] TruckDto truck, [FromServices] TruckService truckService) =>
+        app.MapPost("/trucks", async ([FromBody] CreateTruckDto truck, [FromServices] TruckService truckService) =>
         {
             Guid uuid = await truckService.AddTruckAsync(truck);
             return Results.Ok(uuid);
         }).WithName("AddTruck")
         .Produces<Guid>()
-        .Produces(StatusCodes.Status404NotFound);;
+        .Produces(StatusCodes.Status404NotFound);
         
-        
-        app.MapPut("/trucks", async ([FromBody] TruckDto truck, [FromServices] TruckService truckService) =>
+        app.MapPut("/trucks", async ([FromBody] UpdateTruckDto truck, [FromServices] TruckService truckService) =>
         {
             Guid uuid = await truckService.UpdateTruckAsync(truck);
             return Results.Ok(uuid);
         })
         .WithName("UpdateTruck")
         .Produces<Guid>()
-        .Produces(StatusCodes.Status404NotFound);;;
+        .Produces(StatusCodes.Status404NotFound);
         
         app.MapDelete("/trucks/{uuid}", async (Guid uuid, [FromServices] TruckService truckService) =>
         {
@@ -53,7 +51,6 @@ public static class Endpoints
         .Produces(StatusCodes.Status200OK)
         .Produces(StatusCodes.Status404NotFound);
         
-        
         app.MapPut("/trucks/{uuid}/put-out-of-order", async (Guid uuid, [FromServices] TruckService truckService) =>
         {
             await truckService.PutOutOfServiceAsync(uuid);
@@ -62,7 +59,7 @@ public static class Endpoints
         .WithName("PutOutOfOrder")
         .Produces(StatusCodes.Status200OK)
         .Produces(StatusCodes.Status400BadRequest)
-        .Produces(StatusCodes.Status404NotFound);;
+        .Produces(StatusCodes.Status404NotFound);
         
         app.MapPut("/trucks/{uuid}/start-loading", async (Guid uuid, [FromServices] TruckService truckService) =>
         {
@@ -72,7 +69,7 @@ public static class Endpoints
         .WithName("StartLoading")
         .Produces(StatusCodes.Status200OK)
         .Produces(StatusCodes.Status400BadRequest)
-        .Produces(StatusCodes.Status404NotFound);;;
+        .Produces(StatusCodes.Status404NotFound);
         
         app.MapPut("/trucks/{uuid}/put-to-job", async (Guid uuid, [FromServices] TruckService truckService) =>
         {
@@ -82,7 +79,7 @@ public static class Endpoints
         .WithName("PutToJob")
         .Produces(StatusCodes.Status200OK)
         .Produces(StatusCodes.Status400BadRequest)
-        .Produces(StatusCodes.Status404NotFound);;;
+        .Produces(StatusCodes.Status404NotFound);
         
         app.MapPut("/trucks/{uuid}/go-to-job", async (Guid uuid, [FromServices] TruckService truckService) =>
         {
@@ -92,7 +89,7 @@ public static class Endpoints
         .WithName("GoToJob")
         .Produces(StatusCodes.Status200OK)
         .Produces(StatusCodes.Status400BadRequest)
-        .Produces(StatusCodes.Status404NotFound);;;
+        .Produces(StatusCodes.Status404NotFound);
         
         app.MapPut("/trucks/{uuid}/return", async (Guid uuid, [FromServices] TruckService truckService) =>
         {
@@ -102,6 +99,6 @@ public static class Endpoints
         .WithName("Return")
         .Produces(StatusCodes.Status200OK)
         .Produces(StatusCodes.Status400BadRequest)
-        .Produces(StatusCodes.Status404NotFound);;;
+        .Produces(StatusCodes.Status404NotFound);
     }
 }
