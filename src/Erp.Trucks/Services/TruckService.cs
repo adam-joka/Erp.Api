@@ -5,28 +5,42 @@ using Erp.Trucks.Enums;
 using Erp.Trucks.Exceptions;
 using Erp.Trucks.StatusLogic;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Erp.Trucks.Services;
 
-public class TruckService
+public class TruckService(TrucksDbContext dbContext)
 {
-    private readonly TrucksDbContext _dbContext;
-
-    public TruckService(TrucksDbContext dbContext)
+    public Task<List<TruckDto>> GetTrucksAsync(
+        string? searchTerm, 
+        TruckSortColumn? sortColumn = TruckSortColumn.Code,
+        TruckSortDirection? sortDirection = TruckSortDirection.Asc)
     {
-        _dbContext = dbContext;
-    }
-
-    public Task<List<TruckDto>> GetTrucksAsync() =>
-        _dbContext.Trucks.Select(t => new TruckDto
+        var query = dbContext.Trucks.AsQueryable();
+        
+        if (!string.IsNullOrWhiteSpace(searchTerm))
         {
-            Uuid = t.Uuid,
-            Name = t.Name,
-            Code = t.Code,
-            Description = t.Description,
-            Status = t.Status
-        }).ToListAsync();
+            query = query.Where(t => t.Code.Contains(searchTerm) || t.Name.Contains(searchTerm) || (t.Description != null && t.Description.Contains(searchTerm)));
+        }
+        
+        query = sortColumn switch
+        {
+            TruckSortColumn.Code => sortDirection == TruckSortDirection.Asc ? query.OrderBy(t => t.Code) : query.OrderByDescending(t => t.Code),
+            TruckSortColumn.Name => sortDirection == TruckSortDirection.Asc ? query.OrderBy(t => t.Name) : query.OrderByDescending(t => t.Name),
+            TruckSortColumn.Description => sortDirection == TruckSortDirection.Asc ? query.OrderBy(t => t.Description) : query.OrderByDescending(t => t.Description),
+            TruckSortColumn.Status => sortDirection == TruckSortDirection.Asc ? query.OrderBy(t => t.Status) : query.OrderByDescending(t => t.Status),
+            _ => sortDirection == TruckSortDirection.Asc ? query.OrderBy(t => t.Code) : query.OrderByDescending(t => t.Code),
+        };
+        
+        return query.Select(t => new TruckDto
+            {
+                Uuid = t.Uuid,
+                Name = t.Name,
+                Code = t.Code,
+                Description = t.Description,
+                Status = t.Status
+            })
+            .ToListAsync();
+    }
 
     public async Task<TruckDto> GetTruckAsync(Guid uuid)
     {
@@ -47,7 +61,7 @@ public class TruckService
         // uncomment this when real db is used
         // await using IDbContextTransaction transaction = await _dbContext.Database.BeginTransactionAsync();
         
-        if(await _dbContext.Trucks.AnyAsync(t => t.Uuid == truck.Uuid))
+        if(await dbContext.Trucks.AnyAsync(t => t.Uuid == truck.Uuid))
         {
             throw new TruckWithGivenUuidAlreadyExistsException(truck.Uuid);
         }
@@ -61,9 +75,9 @@ public class TruckService
             Status = TruckStatus.OutOfService
         };
 
-        await _dbContext.Trucks.AddAsync(truckEntity);
+        await dbContext.Trucks.AddAsync(truckEntity);
         
-        await _dbContext.SaveChangesAsync();
+        await dbContext.SaveChangesAsync();
         
         // uncomment this when real db is used
         //await transaction.CommitAsync();
@@ -82,7 +96,7 @@ public class TruckService
         truckEntity.Code = truck.Code;
         truckEntity.Description = truck.Description;
 
-        await _dbContext.SaveChangesAsync();
+        await dbContext.SaveChangesAsync();
         
         // uncomment this when real db is used
         // await transaction.CommitAsync();
@@ -94,9 +108,9 @@ public class TruckService
     {
         Truck truckEntity = await TryGetTruckEntityAsync(uuid);
         
-        _dbContext.Trucks.Remove(truckEntity);
+        dbContext.Trucks.Remove(truckEntity);
         
-        await _dbContext.SaveChangesAsync();
+        await dbContext.SaveChangesAsync();
     }
     
     public async Task PutOutOfServiceAsync (Guid uuid)
@@ -109,7 +123,7 @@ public class TruckService
       
         truckEntity.Status = truckStatusState.Status;
         
-        await _dbContext.SaveChangesAsync();
+        await dbContext.SaveChangesAsync();
     }
     
     public async Task StartLoadingAsync(Guid uuid)
@@ -122,7 +136,7 @@ public class TruckService
 
         truckEntity.Status = truckStatusState.Status;
         
-        await _dbContext.SaveChangesAsync();
+        await dbContext.SaveChangesAsync();
     }
     
     public async Task PutToJobAsync(Guid uuid)
@@ -135,7 +149,7 @@ public class TruckService
 
         truckEntity.Status = truckStatusState.Status;
         
-        await _dbContext.SaveChangesAsync();
+        await dbContext.SaveChangesAsync();
     }
     
     public async Task GoToJobAsync(Guid uuid)
@@ -148,7 +162,7 @@ public class TruckService
 
         truckEntity.Status = truckStatusState.Status;
         
-        await _dbContext.SaveChangesAsync();
+        await dbContext.SaveChangesAsync();
     }
     
     public async Task Return(Guid uuid)
@@ -161,7 +175,7 @@ public class TruckService
 
         truckEntity.Status = truckStatusState.Status;
         
-        await _dbContext.SaveChangesAsync();
+        await dbContext.SaveChangesAsync();
     }
     
     private void GuardAgainstInvalidState(Action action, Guid uuid, TruckStatus status)
@@ -179,7 +193,7 @@ public class TruckService
     
     private async Task<Truck> TryGetTruckEntityAsync(Guid uuid)
     {
-        Truck? truckEntity = await _dbContext.Trucks.FirstOrDefaultAsync(t => t.Uuid == uuid);
+        Truck? truckEntity = await dbContext.Trucks.FirstOrDefaultAsync(t => t.Uuid == uuid);
         if (truckEntity == null)
         {
             throw new TruckWithGivenUuidNotFoundException(uuid);

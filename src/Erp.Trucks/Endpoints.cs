@@ -1,4 +1,5 @@
 using Erp.Trucks.DataTransfer;
+using Erp.Trucks.Enums;
 using Erp.Trucks.Services;
 using FluentValidation;
 using Microsoft.AspNetCore.Builder;
@@ -11,9 +12,13 @@ public static class Endpoints
 {
     public static void MapTrucksEndpoints(this WebApplication app)
     {
-        app.MapGet("/trucks", async ([FromServices] TruckService truckService) =>
+        app.MapGet("/trucks", async (
+                string? searchTerm,
+                TruckSortColumn? sortColumn,
+                TruckSortDirection? sortDirection,
+                [FromServices] TruckService truckService) =>
         {
-            List<TruckDto> trucks = await truckService.GetTrucksAsync();
+            List<TruckDto> trucks = await truckService.GetTrucksAsync(searchTerm, sortColumn, sortDirection);
             return Results.Ok(trucks);
         }).WithName("GetTrucks")
         .Produces<List<TruckDto>>();
